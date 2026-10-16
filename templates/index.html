@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhishGuard | Phishing Detection Lab</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--text:#eef4ff;--muted:#a9b8d0;--line:#2a3b55;--accent:#66e3c4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#183457 0,#0b1220 45%);color:var(--text);font-family:Segoe UI,Arial,sans-serif;line-height:1.55}
+.wrap{width:min(1000px,92%);margin:auto}header{padding:22px 0;border-bottom:1px solid var(--line)}.brand{font-weight:800;font-size:1.2rem}.sub,.muted,.hint,.fine{color:var(--muted)}.sub{font-size:.88rem}
+.hero{padding:38px 0 18px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:2px;font-size:.76rem;font-weight:800}h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:12px 0}.hero p{max-width:700px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}.card,.result{background:rgba(18,29,48,.94);border:1px solid var(--line);border-radius:17px;padding:20px}.card h2{font-size:1.05rem;margin:6px 0}.card p{color:var(--muted);font-size:.92rem;margin:0}.icon{font-size:1.5rem}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+button{border:1px solid var(--line);background:#17253b;color:var(--text);padding:11px 14px;border-radius:10px;cursor:pointer;font-weight:700}.tab.active{background:var(--accent);color:#06251f;border-color:var(--accent)}
+textarea{width:100%;min-height:145px;background:#09111e;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:14px;font:inherit;resize:vertical}label{display:block;font-weight:700;margin:12px 0 8px}.submit{margin-top:12px;background:var(--accent);color:#06251f;border:0}.hint,.fine{font-size:.86rem}.result{margin:20px 0}.verdict{display:inline-block;padding:5px 10px;border-radius:30px;background:#26374d;font-weight:800}.result li{margin:7px 0;color:#d5e0f2}footer{padding:22px 0 35px;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.hero{padding-top:28px}}
+</style></head><body>
+<header><div class="wrap brand">🛡️ PhishGuard<div class="sub">Phishing Attack Simulation &amp; Detection</div></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">Cybersecurity learning lab</div><h1>Spot suspicious messages<br>before they fool you.</h1><p>A beginner-friendly demonstration that checks email text and URL patterns using transparent, rule-based indicators. Analysis runs locally on this computer.</p></section>
+<section class="grid">
+<div class="card"><div class="icon">✉️</div><h2>Email detection</h2><p>Check for pressure tactics, credential requests, and suspicious links.</p></div>
+<div class="card"><div class="icon">🔎</div><h2>URL analysis</h2><p>Inspect URL structure without visiting the website.</p></div>
+<div class="card"><div class="icon">🛡️</div><h2>Awareness simulation</h2><p>Run a fictional offline example and review safety practices.</p></div>
+</section>
+<section class="card">
+<h2>Try the detector</h2><p class="muted">Use fictional examples. Do not paste passwords, OTPs, or private information.</p>
+<div class="tabs">
+<button type="button" class="tab {{ 'active' if mode == 'email' else '' }}" onclick="setMode('email')">Email scanner</button>
+<button type="button" class="tab {{ 'active' if mode == 'url' else '' }}" onclick="setMode('url')">URL scanner</button>
+<button type="button" class="tab {{ 'active' if mode == 'simulation' else '' }}" onclick="setMode('simulation')">Safe simulation</button>
+</div>
+<form method="post"><input type="hidden" name="mode" id="mode" value="{{ mode }}">
+<label id="input-label" for="user_input">{{ 'Website URL' if mode == 'url' else 'Email text' }}</label>
+<textarea id="user_input" name="user_input" placeholder="{{ 'http://example.test/login' if mode == 'url' else 'Paste sample email text here...' }}" {{ 'hidden' if mode == 'simulation' else '' }}>{{ user_input if mode != 'simulation' else '' }}</textarea>
+<p class="hint" id="hint">{{ 'Enter a URL; the website will not be opened.' if mode == 'url' else ('Uses a built-in fictional sample; no email is sent.' if mode == 'simulation' else 'Use fictional sample text or content you are authorized to inspect.') }}</p>
+<button class="submit" type="submit">{{ 'Run safe simulation' if mode == 'simulation' else ('Analyze URL' if mode == 'url' else 'Analyze email') }}</button>
+</form></section>
+{% if result %}<section class="result" aria-live="polite"><h2>{{ result.kind }}</h2><div class="verdict">{{ result.verdict }}</div><p><strong>Rule-based risk score:</strong> {{ result.score }}</p><strong>Findings</strong><ul>{% for reason in result.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% if result.urls %}<strong>URLs found</strong>{% for url in result.urls %}<p><code>{{ url }}</code></p>{% endfor %}{% endif %}<p class="fine">This is a learning prototype, not a guarantee that a message or website is safe or malicious.</p></section>{% endif %}
+<p class="fine">This app does not send emails, open submitted URLs, host fake login pages, or collect credentials.</p></main>
+<footer><div class="wrap">PhishGuard · Student cybersecurity project · Local demonstration only</div></footer>
+<script>
+function setMode(mode){
+ document.getElementById('mode').value=mode;
+ const input=document.getElementById('user_input'), label=document.getElementById('input-label'), hint=document.getElementById('hint'), submit=document.querySelector('.submit');
+ input.hidden=mode==='simulation';
+ if(mode==='url'){label.textContent='Website URL';input.placeholder='http://example.test/login';hint.textContent='Enter a URL. The website will not be opened.';submit.textContent='Analyze URL';}
+ else if(mode==='simulation'){label.textContent='Built-in fictional sample';input.placeholder='';hint.textContent='Uses a built-in fictional sample; no email is sent.';submit.textContent='Run safe simulation';}
+ else{label.textContent='Email text';input.placeholder='Paste sample email text here...';hint.textContent='Use fictional sample text or content you are authorized to inspect.';submit.textContent='Analyze email';}
+ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+ document.querySelectorAll('.tab')[mode==='email'?0:mode==='url'?1:2].classList.add('active');
+}
+</script></body></html>
